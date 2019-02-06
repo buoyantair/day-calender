@@ -14,9 +14,7 @@
         :key="event.uuid"
         class="event"
         v-bind:style="{
-          gridRow: `${Number(event.from.toString().split(':')[0])} / ${Number(
-            event.to.toString().split(':')[0]
-          )}`,
+          gridRow: computeGridRow(event),
           background: event.color
         }"
         v-on:click="setEditingState(true, event.id)"
@@ -174,6 +172,38 @@ export default {
         k => k.id !== this.$data.form.id
       );
       this.$data.events.push(this.$data.form);
+    },
+    buildTimeFromN(n) {
+      let time = "";
+      let ampm = "";
+      if (n <= 24) {
+        time = `${n % 2 !== 0 ? Math.ceil(n / 2) : n / 2}:${
+          n % 2 !== 0 ? "00" : "30"
+        }`;
+        ampm = n >= 23 ? "PM" : "AM";
+      } else if (n > 24) {
+        time = `${n % 2 !== 0 ? Math.ceil(n / 2) : n / 2}:${
+          n % 2 !== 0 ? "00" : "30"
+        }`;
+        ampm = n >= 47 ? "AM" : "PM";
+      }
+
+      return {
+        time,
+        text: `${time} ${ampm}`
+      };
+    },
+    computeGridRow(event) {
+      const fromHours = Number(event.from.toString().split(":")[0]) * 2 - 1;
+      const toHours = Number(event.to.toString().split(":")[0]) * 2 - 1;
+      const fromMins =
+        Number(event.from.toString().split(":")[1]) >= 30 ? 1 : 0;
+      const toMins = Number(event.to.toString().split(":")[1]) >= 30 ? 1 : 0;
+
+      const gridStartLine = fromHours + fromMins;
+      const gridEndLine = toHours + toMins;
+
+      return `${gridStartLine} / ${gridEndLine}`;
     }
   }
 };
@@ -207,7 +237,7 @@ export default {
 .events {
   grid-column: 2;
   display: grid;
-  grid-auto-rows: 40px;
+  grid-auto-rows: 20px;
 }
 
 .event h4 {
