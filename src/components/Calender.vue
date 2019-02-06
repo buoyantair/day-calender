@@ -150,7 +150,10 @@ export default {
   },
   methods: {
     addEvent() {
-      this.$data.events.push(this.$data.form);
+      this.$data.events.push({
+        ...this.$data.form,
+        id: uuid()
+      });
       this.$data.form = this.$data.defaultForm;
     },
     setDialogState(val) {
@@ -249,6 +252,10 @@ export default {
   display: flex;
   flex-flow: column;
   justify-content: center;
+}
+
+.event:hover {
+  cursor: pointer;
 }
 
 .dialog-container {
